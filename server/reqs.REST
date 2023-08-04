@@ -1,0 +1,2 @@
+GET http://localhost:3001/api/goc?month=1&day=1
+content-type: application/json
