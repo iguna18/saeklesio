@@ -1,9 +1,9 @@
 const express = require('express');
 const axios = require('axios');
 const cheerio = require('cheerio');
-
+const cors = require('cors');
 const app = express();
-
+app.use(cors())
 app.use(express.static('build'))
 app.use(express.json())
 
@@ -14,8 +14,7 @@ app.get('/api/goc', async (req, res) => {
   }
 
   try {
-    const url = `https://www.orthodoxy.ge/calendar/2023/v2/
-${req.query.month}/${req.query.day}${req.query.month}.htm`;
+    const url = `https://www.orthodoxy.ge/calendar/2023/v2/${req.query.month}/${req.query.day}${req.query.month}.htm`;
     console.log(url);
     const response = await axios.get(url);
     const html = response.data;
@@ -36,7 +35,7 @@ ${req.query.month}/${req.query.day}${req.query.month}.htm`;
       contentBetweenElements += $(element).toString();
     });
     console.log(contentBetweenElements);
-    res.send(`Content of <body> after <table id="AutoNumber1">: ${contentBetweenElements}`);
+    res.send(contentBetweenElements);
 
     // const firstParagraph = $('p').first().text();
     
