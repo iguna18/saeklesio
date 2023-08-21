@@ -23,18 +23,12 @@ app.get('/api/goc', async (req, res) => {
     const $ = cheerio.load(html);
 
     // Find the table with the specified ID
-    const autoNumber1Table = $('#AutoNumber1');
-
-    // Get the content of the body after the table
-    // const bodyContentAfterTable = autoNumber1Table.nextAll('').html();
-    const bodyClosingTag = $('body').children().last();
-
-    let contentBetweenElements = '';
-    
-    autoNumber1Table.nextUntil('</body>').each((index, element) => {
+    const table = $('#AutoNumber1');
+    let contentBetweenElements = table.find('tr:first-child').find('td:nth-child(2)').toString()
+    table.nextUntil('</body>').each((index, element) => {
       contentBetweenElements += $(element).toString();
     });
-    console.log(contentBetweenElements);
+    // console.log(contentBetweenElements);
     res.send(contentBetweenElements);
 
     // const firstParagraph = $('p').first().text();

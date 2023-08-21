@@ -14,6 +14,8 @@ const Calendar = () => {
   const [value, setValue] = useState(new Date());
   const [highlightedDays, setHighlightedDays] = useState([1, 2, 13]);
   const [commemorationText, setcommemorationText] = useState('')
+  const [selectedOption, setSelectedOption] = useState('option1');
+
   useEffect(() => {
     const newDate = new Date(value);
     newDate.setDate(newDate.getDate() - 13);
@@ -26,12 +28,21 @@ const Calendar = () => {
     if(month.length < 2) {
       month = month.padStart(2, '0')
     }
-    service
-      .getOrtho(day, month)
-      .then(html=>{
-        setcommemorationText(html)
-      })
-  }, [value]);
+    const promise = selectedOption == 'option1' ? service.getOrtho(day, month)
+      : service.getCath(day, month)
+
+    promise.then(html=>{
+      console.log(html);
+      setcommemorationText(html)
+    })
+  }, [value, selectedOption]);
+
+
+
+  const handleOptionChange = (event) => {
+    setSelectedOption(event.target.value);
+  };
+
 
   return (
     <div>
@@ -41,28 +52,28 @@ const Calendar = () => {
         variant='static'
         orientation='portrait'
         value={value}
-        disableFuture
+        // disableFuture
         onChange={(newValue) => {
           setValue(newValue)
         }}
         renderInput={(params) => {
           <TextField {...params} />;
         }}
-        renderDay={(day, _value, DayComponentProps) => {
-          const isSelected =
-            !DayComponentProps.outsideCurrentMonth &&
-            highlightedDays.indexOf(day.getDate()) >= 0;
+        // renderDay={(day, _value, DayComponentProps) => {
+        //   const isSelected =
+        //     !DayComponentProps.outsideCurrentMonth &&
+        //     highlightedDays.indexOf(day.getDate()) >= 0;
 
-          return (
-            <Badge
-              key={day.toString()}
-              overlap='circular'
-              badgeContent={isSelected ? <CheckIcon color='red' /> : undefined}
-            >
-              <PickersDay {...DayComponentProps} />
-            </Badge>
-          );
-        }}
+        //   return (
+        //     <Badge
+        //       key={day.toString()}
+        //       overlap='circular'
+        //       badgeContent={isSelected ? <CheckIcon color='red' /> : undefined}
+        //     >
+        //       <PickersDay {...DayComponentProps} />
+        //     </Badge>
+        //   );
+        // }}
       />
     </LocalizationProvider>
     <div>
@@ -70,7 +81,29 @@ const Calendar = () => {
     {value.toString()}
     </div>
     {/* <div dangerouslySetInnerHTML={{ __html: commemorationText }} /> */}
-    <Description text={commemorationText}/>
+    {/* <Description text={commemorationText}/> */}
+    <div>{commemorationText}</div>
+    <div>
+      <label>
+        <input
+          type="radio"
+          value="option1"
+          checked={selectedOption === 'option1'}
+          onChange={handleOptionChange}
+        />
+        Option 1
+      </label>
+      <label>
+        <input
+          type="radio"
+          value="option2"
+          checked={selectedOption === 'option2'}
+          onChange={handleOptionChange}
+        />
+        Option 2
+      </label>
+      <p>Selected Option: {selectedOption}</p>
+    </div>
     </div>
   );
 };

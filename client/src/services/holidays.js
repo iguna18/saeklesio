@@ -17,10 +17,11 @@ const getOrtho = (day, month) => {
   )
 }
 
-const getCath = () => {
+const getCath = (day, month) => {
+  
   return (
     axios
-      .get(baseUrl + 'rcc')
+      .get(`http://calapi.inadiutorium.cz/api/v0/en/calendars/default/2015/${month}/${day}`)
       .then(response => {
         // console.log(response.data);
         return response.data
