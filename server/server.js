@@ -4,7 +4,7 @@ const cheerio = require('cheerio');
 const cors = require('cors');
 const app = express();
 app.use(cors())
-app.use(express.static('build'))
+app.use(express.static('../client/build'))
 app.use(express.json())
 
 app.get('/api/goc', async (req, res) => {
