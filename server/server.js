@@ -42,6 +42,29 @@ app.get('/api/goc', async (req, res) => {
   }
 });
 
+app.get('/api/roc', async (req, res) => {
+  console.log(req.query.month, req.query.day)
+  if(!req.query.month || !req.query.day) {
+    return res.status(400).json({ error: 'Missing required parameters.' });
+  }
+  try {
+    const url = `https://days.pravoslavie.ru/Days/2023${req.query.month}${req.query.day}.html`;
+    console.log(url);
+    const response = await axios.get(url);
+    const html = response.data;
+    
+    // Use Cheerio to parse the HTML
+    const $ = cheerio.load(html);
+
+    const div = $('.DD_TEXT');
+    // console.log(div)
+    res.send(div.text())
+  } catch (error) {
+    console.error('Error:', error.message);
+    res.status(500).send('Something went wrong.');
+  }
+});
+
 const PORT = 3001;
 app.listen(PORT, () => {
   console.log(`Server started on http://localhost:${PORT}`);

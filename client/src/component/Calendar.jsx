@@ -8,14 +8,22 @@ import Badge from '@mui/material/Badge';
 import { PickersDay } from '@mui/x-date-pickers/PickersDay';
 import CheckIcon from '@mui/icons-material/Check';
 import Description from './Description';
+import Select from 'react-select';
+
+const options = [
+  { value: 'option1', label: 'Option 1' },
+  { value: 'option2', label: 'Option 2' },
+  { value: 'option3', label: 'Option 3' },
+];
 
 const Calendar = () => {
   const julianGapDays = 13
   const [value, setValue] = useState(new Date());
   const [highlightedDays, setHighlightedDays] = useState([1, 2, 13]);
   const [commemoration, setcommemoration] = useState(null)
-  const [selectedOption, setSelectedOption] = useState('option1');
+  const [selectedOption, setSelectedOption] = React.useState(null);
 
+  // Updates commemoration whenever a different date or church is selected
   useEffect(() => {
     const newDate = new Date(value);
     newDate.setDate(newDate.getDate() - 13);
@@ -29,25 +37,38 @@ const Calendar = () => {
       month = month.padStart(2, '0')
     }
     console.log(commemoration);
-    const promise = selectedOption == 'option1' ? service.getOrtho(day, month)
+    const promise = selectedOption == options[0] ? service.getGoc(day, month)
       : service.getCath(day, month)
 
     promise.then(ret=>{
       console.log(ret);
-      if(selectedOption=='option1') {
+      if(selectedOption==options[0]) {
         setcommemoration(ret)
-      } else if(selectedOption=='option2') {
+      } else {
         setcommemoration(ret.celebrations[0].title)
       }
     })
   }, [value, selectedOption]);
 
 
-
-  const handleOptionChange = (event) => {
-    setSelectedOption(event.target.value);
+  const handleChange = (selectedOption) => {
+    setSelectedOption(selectedOption);
   };
 
+
+  const shouldDisableDate = (date) => {
+    // Disable dates from Jan 1 to Jan 13
+    const isDisabled = date.getMonth() === 0 && date.getDate() >= 1 && date.getDate() <= 13;
+
+    // Disable years other than the current year
+    const isYearDisabled = date.getFullYear() !== value.getFullYear();
+
+    return isDisabled || isYearDisabled;
+  };
+
+  const optionsDivStyle = {
+    flexDirection: 'column'
+  }
 
   return (
     <div>
@@ -57,6 +78,7 @@ const Calendar = () => {
         variant='static'
         orientation='portrait'
         value={value}
+        shouldDisableDate={shouldDisableDate}
         // disableFuture
         onChange={(newValue) => {
           setValue(newValue)
@@ -72,37 +94,54 @@ const Calendar = () => {
     {value.toString()}
     </div>
     {
-      selectedOption == 'option1' ?
+      selectedOption == options[0] ?
       <div dangerouslySetInnerHTML={{ __html: commemoration }} />
       :
       <div>
         {commemoration}
       </div>
     }
-
-    <div>
-      <label>
-        <input
-          type="radio"
-          value="option1"
-          checked={selectedOption === 'option1'}
-          onChange={handleOptionChange}
-        />
-        Option 1
-      </label>
-      <label>
-        <input
-          type="radio"
-          value="option2"
-          checked={selectedOption === 'option2'}
-          onChange={handleOptionChange}
-        />
-        Option 2
-      </label>
-      <p>Selected Option: {selectedOption}</p>
+    <div className="dropdown-container">
+      <Select
+        value={selectedOption}
+        onChange={handleChange}
+        options={options}
+        placeholder="Select an option"
+        className="custom-dropdown"
+      />
     </div>
     </div>
   );
+    // <div style={optionsDivStyle}>
+    //   <label>
+    //     <input
+    //       type="radio"
+    //       value="option1"
+    //       checked={selectedOption === 'option1'}
+    //       onChange={handleOptionChange}
+    //     />
+    //     Option 1
+    //   </label>
+    //   <label>
+    //     <input
+    //       type="radio"
+    //       value="option2"
+    //       checked={selectedOption === 'option2'}
+    //       onChange={handleOptionChange}
+    //     />
+    //     Option 2
+    //   </label>
+    //   <label>
+    //     <input
+    //       type="radio"
+    //       value="option3"
+    //       checked={selectedOption === 'option3'}
+    //       onChange={handleOptionChange}
+    //     />
+    //     Option 3
+    //   </label>
+    //   <p>Selected Option: {selectedOption}</p>
+    // </div>
 };
 
 export default Calendar;
